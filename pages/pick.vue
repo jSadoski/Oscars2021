@@ -2,12 +2,7 @@
   <section class="section">
     <!-- Ballot Modal -->
     <div class="block">
-      <b-button
-        :class="isBallotComplete ? 'is-primary' : ''"
-        icon-left="ballot-outline"
-        expanded
-        @click="ballotCodeOpen"
-      >
+      <b-button icon-left="ballot-outline" expanded @click="ballotCodeOpen">
         Ballot Code
       </b-button>
       <b-modal

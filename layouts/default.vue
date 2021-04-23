@@ -39,9 +39,18 @@
 </template>
 
 <script>
+import noms from '../data/nominations.js'
+
 export default {
   data() {
     return {}
+  },
+  fetch() {
+    this.$store.commit('noms/set', noms)
+    this.$store.commit(
+      'ballot/set',
+      Object.fromEntries(noms.map((nom) => [nom.tag, null]))
+    )
   },
 }
 </script>

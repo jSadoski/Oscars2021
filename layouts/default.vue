@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar class="navbar is-warning">
+    <b-navbar class="navbar">
       <template #brand>
         <b-navbar-item tag="router-link" :to="{ path: '/' }">
           <img

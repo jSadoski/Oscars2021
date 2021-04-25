@@ -1,0 +1,72 @@
+<template>
+  <section class="section">
+    <h1 class="title">{{ name }}'s Ballot:</h1>
+    <div class="level is-mobile">
+      <div class="level-left">
+        <div class="level-item">
+          <h2 class="subtitle has-text-grey has-text-weight-light">
+            (<span class="is-family-code">{{ $route.params.id }}</span
+            >)
+          </h2>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <b-button
+            type="is-ghost"
+            icon-right="arrow-right"
+            @click="$router.push(`/pick/?id=${$route.params.id}`)"
+          >
+            <em>Copy this ballot</em>
+          </b-button>
+        </div>
+      </div>
+    </div>
+    <ul>
+      <li v-for="{ category, pick, tag } in picks" :key="tag">
+        <h2 class="title is-6">{{ category }}:</h2>
+        {{ pick }}
+      </li>
+    </ul>
+  </section>
+</template>
+
+<script>
+import noms from '~/assets/data/nominations.js'
+
+export default {
+  props: {
+    ballotid: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      ballot: {
+        name: { stringValue: '' },
+        selections: { mapValue: { fields: {} } },
+      },
+      picks: [],
+      name: '',
+    }
+  },
+  async fetch() {
+    const req = await this.$fire.firestore
+      .collection('ballots')
+      .doc(this.ballotid)
+      .get()
+    this.ballot = req._delegate._document.data.partialValue.mapValue.fields
+  },
+  mounted() {
+    this.name = this.ballot.name.stringValue ?? this.name
+    this.picks = noms.map(({ name, tag, noms }) => {
+      return {
+        category: name,
+        tag,
+        pick: noms[this.ballot.selections.mapValue.fields[tag]?.stringValue],
+      }
+    })
+  },
+}
+</script>

@@ -35,6 +35,8 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/buefy
     'nuxt-buefy',
+    // https://pwa.nuxtjs.org/
+    '@nuxtjs/pwa',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
   ],

@@ -1,6 +1,6 @@
 <template>
   <section>
-    <ballot :ballotid="$route.params.ballot" />
+    <ballot :ballotid="$route.params.ballot" :scored="true" />
   </section>
 </template>
 

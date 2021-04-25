@@ -22,6 +22,7 @@
         </div>
       </div>
     </div>
+    <h3 class="subtitle">Ballot Score: {{ score }}</h3>
     <ul>
       <li v-for="{ category, pick, tag } in picks" :key="tag">
         <h2 class="title is-6">{{ category }}:</h2>
@@ -40,6 +41,10 @@ export default {
       type: String,
       required: true,
     },
+    scored: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -47,8 +52,7 @@ export default {
         name: { stringValue: '' },
         selections: { mapValue: { fields: {} } },
       },
-      picks: [],
-      name: '',
+      winners: {},
     }
   },
   async fetch() {
@@ -57,16 +61,37 @@ export default {
       .doc(this.ballotid)
       .get()
     this.ballot = req._delegate._document.data.partialValue.mapValue.fields
+    if (this.scored) {
+      const reqWinners = await this.$fire.firestore
+        .collection('winners')
+        .doc('MQTtQQqDxhUiGdUzZLGu')
+        .get()
+      this.winners =
+        reqWinners._delegate._document.data.partialValue.mapValue.fields
+    }
   },
-  mounted() {
-    this.name = this.ballot.name.stringValue ?? this.name
-    this.picks = noms.map(({ name, tag, noms }) => {
-      return {
-        category: name,
-        tag,
-        pick: noms[this.ballot.selections.mapValue.fields[tag]?.stringValue],
-      }
-    })
+  computed: {
+    name() {
+      return this.ballot.name?.stringValue ?? this.name
+    },
+    picks() {
+      return noms.map(({ name, tag, noms }) => {
+        const pickIndex = this.ballot.selections.mapValue.fields[tag]
+          ?.stringValue
+        const pick = noms[pickIndex]
+        return {
+          category: name,
+          tag,
+          pick,
+          winner: this.winners[tag]?.integerValue === pickIndex,
+        }
+      })
+    },
+    score() {
+      return this.picks.reduce((accumulator, pick) => {
+        return accumulator + (pick.winner ? 1 : 0)
+      }, 0)
+    },
   },
 }
 </script>

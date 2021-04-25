@@ -5,7 +5,7 @@
       <div class="level-left">
         <div class="level-item">
           <h2 class="subtitle has-text-grey has-text-weight-light">
-            (<span class="is-family-code">{{ $route.params.id }}</span
+            (<span class="is-family-code">{{ ballotid }}</span
             >)
           </h2>
         </div>
@@ -15,7 +15,7 @@
           <b-button
             type="is-ghost"
             icon-right="arrow-right"
-            @click="$router.push(`/pick/?id=${$route.params.id}`)"
+            @click="$router.push(`/pick/?id=${$ballotid}`)"
           >
             <em>Copy this ballot</em>
           </b-button>

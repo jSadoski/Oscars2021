@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import noms from '~/data/nominations.js'
+import noms from '~/assets/data/nominations.js'
 
 export default {
   async asyncData({ $fire, route }) {

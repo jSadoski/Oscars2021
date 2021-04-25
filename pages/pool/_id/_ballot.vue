@@ -1,0 +1,13 @@
+<template>
+  <section>
+    <ballot :ballotid="$route.params.ballot" />
+  </section>
+</template>
+
+<script>
+import Ballot from '~/components/Ballot'
+
+export default {
+  components: { Ballot },
+}
+</script>

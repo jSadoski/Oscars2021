@@ -1,10 +1,6 @@
 <template>
-  <section class="hero is-danger is-fullheight">
-    <div class="hero-body">
-      <div class="">
-        <a href="/pick">Create a pick sheet</a>
-      </div>
-    </div>
+  <section class="section">
+    <a href="/pick">Create a new ballot</a>
   </section>
 </template>
 

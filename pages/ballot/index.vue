@@ -186,7 +186,7 @@ export default {
   name: 'PickSheet',
   async asyncData({ route, $fire }) {
     let selections = Object.fromEntries(noms.map((nom) => [nom.tag, null]))
-    let yourName
+    let yourName = ''
     let error, resObj
     if (route.query.id) {
       try {
@@ -226,7 +226,6 @@ export default {
       enteredBallotCode: '',
       isSetModalActive: false,
       isGetModalActive: false,
-      yourName: '',
       isSubmittingBallot: false,
     }
   },

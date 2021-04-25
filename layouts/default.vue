@@ -15,7 +15,7 @@
     </b-navbar>
 
     <section class="main-content columns">
-      <div class="container column is-10">
+      <div class="container" style="max-width: 800px">
         <nuxt />
       </div>
     </section>

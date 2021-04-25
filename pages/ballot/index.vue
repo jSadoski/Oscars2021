@@ -180,7 +180,7 @@
 </template>
 
 <script>
-import noms from '../data/nominations.js'
+import noms from '~/assets/data/nominations.js'
 
 export default {
   name: 'PickSheet',
@@ -271,9 +271,16 @@ export default {
       // this.$refs.EnterCode.ballotCode.focus()
     },
     async submitBallot() {
-      if (this.yourName !== '' && this.isBallotComplete) {
+      if (
+        this.yourname !== null &&
+        this.yourName !== '' &&
+        this.isBallotComplete
+      ) {
         this.isSubmittingBallot = true
-        const capturedInitials = this.yourName.match(/\b\S/g).splice(0, 2)
+        const capturedInitials = this.yourName
+          .match(/\b\S/g)
+          .splice(0, 2)
+          .join('')
         const initials =
           capturedInitials.length < 2
             ? this.yourName.slice(0, 2)

@@ -1,9 +1,17 @@
 <template>
   <section class="section">
+    <b-field label="Your Name:">
+      <b-input v-model="yourName" placeholder="The Academy" />
+    </b-field>
     <!-- Ballot Modal -->
-    <div class="block">
-      <b-button icon-left="ballot-outline" expanded @click="ballotCodeOpen">
-        Ballot Code
+    <b-field label="Your Ballot:">
+      <b-button
+        type="is-ghost"
+        icon-left="ballot-outline"
+        size="is-small"
+        @click="ballotCodeOpen"
+      >
+        <em>Enter a Ballot Code</em>
       </b-button>
       <b-modal
         ref="EnterCode"
@@ -45,7 +53,7 @@
             </section>
             <footer class="modal-card-foot">
               <b-button label="Close" @click="isGetModalActive = false" />
-              <b-button label="Enter Ballot Code" @click="enterBallot" />
+              <b-button label="Enter Ballot Code" @click="enterBallotCode" />
             </footer>
           </div>
         </div>
@@ -67,7 +75,7 @@
             </header>
             <section class="modal-card-body">
               <b-field label="Enter Code:">
-                <b-input v-model="enterBallotCode"> </b-input>
+                <b-input v-model="enteredBallotCode"> </b-input>
               </b-field>
               <b-button
                 class="is-small"
@@ -82,18 +90,22 @@
             </section>
             <footer class="modal-card-foot">
               <b-button label="Close" @click="isSetModalActive = false" />
-              <b-button label="Enter Ballot Code" @click="enterBallot" />
+              <b-button label="Enter Ballot Code" @click="enterBallotCode" />
             </footer>
           </div>
         </div>
       </b-modal>
-    </div>
+    </b-field>
     <!--  -->
     <!-- Selections -->
 
     <b-dropdown aria-role="list">
       <template #trigger="{ active }">
-        <b-button :icon-right="active ? 'menu-up' : 'menu-down'">
+        <b-button
+          ref="categoryButton"
+          type="is-ghost is-large has-text-black"
+          :icon-right="active ? 'menu-up' : 'menu-down'"
+        >
           {{ activeNom.name }}
         </b-button>
       </template>
@@ -153,6 +165,17 @@
       </div>
     </div>
     <!--  -->
+    <!-- Submit button -->
+    <div class="block">
+      <b-button
+        ref="submitButton"
+        :type="submitButtonType"
+        expanded
+        @click.prevent="submitBallot"
+      >
+        Submit
+      </b-button>
+    </div>
   </section>
 </template>
 
@@ -160,20 +183,51 @@
 import noms from '../data/nominations.js'
 
 export default {
-  asyncData({ params }) {
-    const selections = Object.fromEntries(noms.map((nom) => [nom.tag, null]))
+  name: 'PickSheet',
+  async asyncData({ route, $fire }) {
+    let selections = Object.fromEntries(noms.map((nom) => [nom.tag, null]))
+    let yourName
+    let error, resObj
+    if (route.query.id) {
+      try {
+        const resObj = await $fire.firestore
+          .collection('ballots')
+          .doc(route.query.id)
+          .get()
+        yourName =
+          resObj._delegate._document.data.partialValue.mapValue.fields.name
+            .stringValue
+        const rawSelections =
+          resObj._delegate._document.data.partialValue.mapValue.fields
+            .selections.mapValue.fields
+        const s = Object.fromEntries(
+          Object.entries(rawSelections).map(([key, { stringValue }]) => [
+            key,
+            stringValue,
+          ])
+        )
+        selections = s ?? selections
+      } catch (e) {
+        error = e.message
+      }
+    }
     return {
+      yourName,
       noms,
       selections,
+      error,
+      resObj,
     }
   },
   data() {
     return {
       activeScreen: 0,
       enteringCode: false,
-      enterBallotCode: '',
+      enteredBallotCode: '',
       isSetModalActive: false,
       isGetModalActive: false,
+      yourName: '',
+      isSubmittingBallot: false,
     }
   },
   computed: {
@@ -188,11 +242,26 @@ export default {
     isBallotComplete() {
       return Object.values(this.selections).every((value) => value != null)
     },
+    submitButtonType() {
+      return this.isSubmittingBallot
+        ? 'is-loading'
+        : this.isBallotComplete
+        ? 'is-primary'
+        : ''
+    },
+  },
+  mounted() {
+    if (this.error)
+      this.$buefy.toast.open({
+        message: `Could not load a poll for id:<br />${this.error}<br />${this.resObj}`,
+        position: 'is-bottom',
+        type: 'is-danger',
+      })
   },
   methods: {
-    enterBallot() {
+    enterBallotCode() {
       // Unpack a ballot code string into the form
-      ;[...this.enterBallotCode.matchAll(/([a-z]+)([0-9]+)/g)].forEach(
+      ;[...this.enteredBallotCode.matchAll(/([a-z]+)([0-9]+)/g)].forEach(
         (match) => (this.selections[match[1]] = match[2])
       )
       this.isSetModalActive = false
@@ -200,6 +269,42 @@ export default {
     ballotCodeOpen() {
       this.isGetModalActive = true
       // this.$refs.EnterCode.ballotCode.focus()
+    },
+    async submitBallot() {
+      if (this.yourName !== '' && this.isBallotComplete) {
+        this.isSubmittingBallot = true
+        const capturedInitials = this.yourName.match(/\b\S/g).splice(0, 2)
+        const initials =
+          capturedInitials.length < 2
+            ? this.yourName.slice(0, 2)
+            : capturedInitials
+        const id = [initials, this.generateId(5)].join('').toUpperCase()
+        try {
+          await this.$fire.firestore
+            .collection('ballots')
+            .doc(id)
+            .set({ name: this.yourName, selections: this.selections })
+        } catch (e) {
+          this.$buefy.toast.open({
+            message: `Something went wrong: ${e.message}`,
+            type: 'is-danger',
+          })
+        }
+        this.$router.push(`/ballot/${id}`)
+      } else {
+        this.$buefy.toast.open({
+          message: 'Ballot is not complete',
+          type: 'is-danger',
+        })
+      }
+    },
+    dec2hex(dec) {
+      return dec.toString(16).padStart(2, '0')
+    },
+    generateId(len) {
+      const arr = new Uint8Array((len || 40) / 2)
+      window.crypto.getRandomValues(arr)
+      return Array.from(arr, this.dec2hex).join('').toUpperCase()
     },
   },
 }

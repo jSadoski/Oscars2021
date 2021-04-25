@@ -271,11 +271,7 @@ export default {
       // this.$refs.EnterCode.ballotCode.focus()
     },
     async submitBallot() {
-      if (
-        this.yourname !== null &&
-        this.yourName !== '' &&
-        this.isBallotComplete
-      ) {
+      if (this.yourName.match(/\b\S/g) && this.isBallotComplete) {
         this.isSubmittingBallot = true
         const capturedInitials = this.yourName
           .match(/\b\S/g)

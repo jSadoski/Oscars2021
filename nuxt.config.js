@@ -37,8 +37,7 @@ export default {
     'nuxt-buefy',
     // https://pwa.nuxtjs.org/
     '@nuxtjs/pwa',
-    // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios',
+    '@nuxtjs/firebase',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -46,4 +45,18 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
+
+  // Firebase configuration: https://firebase.nuxtjs.org/guide/options
+  firebase: {
+    config: {
+      // REQUIRED: Official config for firebase.initializeApp(config):
+      apiKey: process.env.firestoreApiKey,
+      authDomain: process.env.firestoreAuthDomain,
+      projectId: process.env.firestoreProjectId,
+      storageBucket: process.env.firestoreStorageBucket,
+      messagingSenderId: process.env.firestoreMessagingSenderId,
+      appId: process.env.firestoreAppId,
+    },
+    services: { firestore: true },
+  },
 }

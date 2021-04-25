@@ -15,7 +15,7 @@
           <b-button
             type="is-ghost"
             icon-right="arrow-right"
-            @click="$router.push(`/pick/?id=${$ballotid}`)"
+            @click="$router.push(`/ballot/?id=${$ballotid}`)"
           >
             <em>Copy this ballot</em>
           </b-button>

@@ -23,5 +23,9 @@
 </template>
 
 <script>
-export default {}
+import { BNavbar } from 'buefy'
+
+export default {
+  components: { BNavbar },
+}
 </script>

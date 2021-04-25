@@ -1,5 +1,8 @@
 # oscars2021
 
+![Node.js CI](https://github.com/jSadoski/Oscars2021/actions/workflows/node.js.yml/badge.svg)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ca8dc27b-bae0-44ab-b4ed-960d96636624/deploy-status)](https://app.netlify.com/sites/oscars-ballot-2021/deploys)
+
 ## Build Setup
 
 ```bash
